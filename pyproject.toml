@@ -1,0 +1,93 @@
+[tool.poetry]
+name = "compare-the-munro-dotcom"
+version = "0.1.0"
+description = ""
+authors = ["Lewis Harvey <lewis.harvey@res-group.com>"]
+readme = "README.md"
+packages = [{include = "compare_the_munro_dotcom"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+poethepoet = "^0.26.1"
+ruff = "^0.4.2"
+mypy = "^1.10.0"
+pytest = "^8.2.0"
+python-dotenv = "^1.0.1"
+jupyterlab = "^4.1.8"
+jupytext = "^1.16.1"
+beautifulsoup4 = "^4.12.3"
+selenium = "^4.20.0"
+tqdm = "^4.66.2"
+pyenchant = "^3.2.2"
+langdetect = "^1.0.9"
+matplotlib = "^3.8.4"
+solara = "^1.33.0"
+pandas = "^2.2.2"
+folium = "^0.17.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+show-fixes = true
+exclude = [
+    ".venv",
+    "__ignore__",
+    "notebooks",
+    "scripts"
+]
+
+[tool.ruff.lint]
+select = [# see https://beta.ruff.rs/docs/rules/
+    "A", "E", "F", "UP", "I", "W", "SIM", "RUF", "C901"
+]
+ignore = [
+    "A002", # Argument `id` is shadowing a Python builtin
+    "A003", # Class attribute `...` is shadowing a Python builtin
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+]
+
+[tool.mypy]
+python_version = 3.11
+ignore_missing_imports = true
+disallow_untyped_defs = true
+exclude = "tests|notebooks|__ignore__|.ipynb_checkpoints|scripts"
+
+
+[tool.coverage.run]
+include = [
+    "app/*",
+    "compare_the_munro_dotcom/*",
+]
+
+[tool.poe.tasks]
+[tool.poe.tasks.lint]
+help = "Lint"
+sequence = [
+    { cmd = "poetry run ruff format ." },
+    { cmd = "poetry run ruff check . --fix" },
+    { cmd = "poetry run python -m mypy ." },
+]
+
+[tool.poe.tasks.test]
+help = "Runs all tests"
+sequence = [
+    { cmd = "poetry run coverage run -m pytest ./tests" },
+    { cmd = "poetry run coverage report -m" },
+]
+
+[tool.poe.tasks.all]
+help = "Run all required pre-push commands"
+sequence = [{ ref = "lint" }, { ref = "test" }, { shell = "echo \"\nAll Good! :)\"" }]
+
+[tool.poe.tasks.jupy]
+help = "Run jupyter lab"
+sequence = [{ cmd = "poetry run python -m jupyterlab" }]
+
+[tool.poe.tasks.ui]
+help = "Run the UI"
+sequence = [{ cmd = "poetry run python -m solara run app/main.py" }]
