@@ -21,9 +21,10 @@ tqdm = "^4.66.2"
 pyenchant = "^3.2.2"
 langdetect = "^1.0.9"
 matplotlib = "^3.8.4"
-solara = "^1.33.0"
 pandas = "^2.2.2"
 folium = "^0.17.0"
+streamlit = "^1.36.0"
+streamlit-geolocation = "^0.0.10"
 
 
 [build-system]
@@ -90,4 +91,4 @@ sequence = [{ cmd = "poetry run python -m jupyterlab" }]
 
 [tool.poe.tasks.ui]
 help = "Run the UI"
-sequence = [{ cmd = "poetry run python -m solara run app/main.py" }]
+sequence = [{ cmd = "poetry run python -m streamlit run app/main.py" }]
