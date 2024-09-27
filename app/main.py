@@ -1,13 +1,10 @@
 import googlemaps
 import pandas as pd
 import streamlit as st
-from dotenv import load_dotenv
 from plots import TABLE_COLUMNS, _create_map_fig
 from streamlit_geolocation import streamlit_geolocation
 
 from compare_the_munro_dotcom.calcs import ROOT_FLD, get_commute_time_hours
-
-load_dotenv()
 
 st.set_page_config(page_title="Compare the munro .com", page_icon=":mountain:", layout="wide")
 
