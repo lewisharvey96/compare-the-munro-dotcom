@@ -94,3 +94,7 @@ sequence = [{ ref = "lint" }, { ref = "test" }, { shell = "echo \"\nAll Good! :)
 [tool.poe.tasks.jupy]
 help = "Run jupyter lab"
 sequence = [{ cmd = "uv run python -m jupyterlab" }]
+
+[tool.poe.tasks.export]
+help = "Generate requirements.txt"
+sequence = [{ cmd = "uv pip compile pyproject.toml -o requirements.txt" }]
