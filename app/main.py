@@ -3,10 +3,9 @@ from pathlib import Path
 import googlemaps
 import pandas as pd
 import streamlit as st
+from calcs import get_commute_time_hours
+from plots import TABLE_COLUMNS, _create_map_fig
 from streamlit_geolocation import streamlit_geolocation
-
-from app.calcs import get_commute_time_hours
-from app.plots import TABLE_COLUMNS, _create_map_fig
 
 st.set_page_config(page_title="Compare the munro .com", page_icon=":mountain:", layout="wide")
 
