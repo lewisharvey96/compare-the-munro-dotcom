@@ -1,36 +1,41 @@
-[tool.poetry]
+[project]
 name = "compare-the-munro-dotcom"
-version = "0.1.0"
-description = ""
-authors = ["Lewis Harvey <lewis.harvey@res-group.com>"]
+version = "1.0.0"
+description = "Web app to explore the munros"
+authors = [
+  {name = "Lewis Harvey", email = "123@gmail.com"}
+]
 readme = "README.md"
-packages = [{include = "compare_the_munro_dotcom"}]
+requires-python = ">=3.11,<3.12"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-poethepoet = "^0.26.1"
-ruff = "^0.4.2"
-mypy = "^1.10.0"
-pytest = "^8.2.0"
-python-dotenv = "^1.0.1"
-jupyterlab = "^4.1.8"
-jupytext = "^1.16.1"
-beautifulsoup4 = "^4.12.3"
-selenium = "^4.20.0"
-tqdm = "^4.66.2"
-pyenchant = "^3.2.2"
-langdetect = "^1.0.9"
-matplotlib = "^3.8.4"
-pandas = "^2.2.2"
-streamlit = "^1.36.0"
-streamlit-geolocation = "^0.0.10"
-googlemaps = "^4.10.0"
-plotly = "^5.23.0"
+dependencies=[
+    "pandas >=2.2.2, <3.0.0",
+    "streamlit >=1.36.0, <2.0.0",
+    "streamlit-geolocation >= 0.0.10, < 1.0.0",
+    "googlemaps >=4.10.0, <5.0.0",
+    "plotly >=5.23.0, <6.0.0",
+]
 
+[tool.setuptools.packages.find]
+where = ["compare_the_munro_dotcom"]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+dev-dependencies = [
+    "poethepoet",
+    "ruff",
+    "mypy",
+    "pytest",
+    "coverage",
+    "python-dotenv",
+    "jupyterlab",
+    "jupytext",
+    "beautifulsoup4",
+    "selenium",
+    "tqdm",
+    "pyenchant",
+    "langdetect",
+    "matplotlib",
+]
 
 [tool.ruff]
 line-length = 120
@@ -70,16 +75,16 @@ include = [
 [tool.poe.tasks.lint]
 help = "Lint"
 sequence = [
-    { cmd = "poetry run ruff format ." },
-    { cmd = "poetry run ruff check . --fix" },
-    { cmd = "poetry run python -m mypy ." },
+    { cmd = "uv run ruff format ." },
+    { cmd = "uv run ruff check . --fix" },
+    { cmd = "uv run python -m mypy ." },
 ]
 
 [tool.poe.tasks.test]
 help = "Runs all tests"
 sequence = [
-    { cmd = "poetry run coverage run -m pytest ./tests" },
-    { cmd = "poetry run coverage report -m" },
+    { cmd = "uv run coverage run -m pytest ./tests" },
+    { cmd = "uv run coverage report -m" },
 ]
 
 [tool.poe.tasks.all]
@@ -88,8 +93,4 @@ sequence = [{ ref = "lint" }, { ref = "test" }, { shell = "echo \"\nAll Good! :)
 
 [tool.poe.tasks.jupy]
 help = "Run jupyter lab"
-sequence = [{ cmd = "poetry run python -m jupyterlab" }]
-
-[tool.poe.tasks.ui]
-help = "Run the UI"
-sequence = [{ cmd = "poetry run python -m streamlit run app/main.py" }]
+sequence = [{ cmd = "uv run python -m jupyterlab" }]

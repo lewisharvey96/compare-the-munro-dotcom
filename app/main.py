@@ -1,13 +1,11 @@
-import os
-
 import googlemaps
 import pandas as pd
-import plotly.express as px
 import streamlit as st
 from dotenv import load_dotenv
+from plots import TABLE_COLUMNS, _create_map_fig
 from streamlit_geolocation import streamlit_geolocation
 
-from compare_the_munro_dotcom.utils import ROOT_FLD, get_commute_time_hours
+from compare_the_munro_dotcom.calcs import ROOT_FLD, get_commute_time_hours
 
 load_dotenv()
 
@@ -33,29 +31,17 @@ hide_streamlit_style = """
 
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-TABLE_COLUMNS = [
-    "route_name",
-    "distance",
-    "time_median",
-    "ascent",
-    "munros_climbed",
-    "rating",
-    "grade",
-    "bog_factor",
-    "calories_per_kg",
-    "number_of_munros",
-    "route_page_link",
-]
-MAP_CENTER = {"lat": 57.3, "lon": -4.28}
-
 st.title(":mountain: Compare the munro .com")
 
 location = streamlit_geolocation()
-current_location = (location["latitude"], location["longitude"])
+current_location = (location["latitude"], location["longitude"], "Current Location")
+
+if location["latitude"] is not None:
+    st.session_state["current_location"] = current_location
 
 routes_df = pd.read_csv(ROOT_FLD / "data" / "all_routes_add_features.csv").set_index("name")
 
-gmaps = googlemaps.Client(key=os.environ.get("GMAPS_API_KEY"))
+gmaps = googlemaps.Client(key=st.secrets["GMAPS_API_KEY"])
 
 st.markdown("Click to use your location and calculate commute time (driving) if possible.")
 st.markdown(
@@ -64,37 +50,41 @@ st.markdown(
     "and the **color** is proportional to the **ascent** gained."
 )
 
-fig = px.scatter_mapbox(
-    routes_df,
-    lat="start_lat",
-    lon="start_lon",
-    color="ascent",
-    size="distance",
-    hover_name="route_name",
-    hover_data=list(set(TABLE_COLUMNS) - set(["route_page_link"])),
-    custom_data=["route_page_link"],
-    mapbox_style="open-street-map",
-    center=MAP_CENTER,
-    zoom=6.5,
-    height=800,
-    color_continuous_scale=px.colors.sequential.Reds,
-)
-
 with st.expander("Map of Routes", expanded=True):
-    st.plotly_chart(fig)
+    st_fig = st.empty()
+    if st.session_state.get("current_location", None):
+        fig = _create_map_fig(routes_df, [current_location])
+    else:
+        fig = _create_map_fig(routes_df)
+    st_fig.plotly_chart(fig)
 
 st_df = st.empty()
-st_df.dataframe(
-    routes_df[TABLE_COLUMNS], column_config={"route_page_link": st.column_config.LinkColumn("route_page_link")}
+
+highlight_points = []
+
+if st.session_state.get("current_location", None):
+    with st.spinner("Calculating commute times..."):
+        routes_df["commute_time"] = get_commute_time_hours(
+            gmaps, current_location, routes_df[["start_lat", "start_lon"]].to_records(index=False)
+        )
+        routes_df["total_time"] = routes_df["time_median"] + routes_df["commute_time"]
+        highlight_points.append(current_location)
+
+selection_event = st_df.dataframe(
+    routes_df.filter(items=TABLE_COLUMNS),
+    column_config={"route_page_link": st.column_config.LinkColumn("route_page_link")},
+    on_select="rerun",
+    selection_mode="multi-row",
 )
 
-if location["latitude"] is not None:
-    routes_df["commute_time"] = get_commute_time_hours(
-        gmaps, current_location, routes_df[["start_lat", "start_lon"]].to_records(index=False)
+selected_rows = selection_event.selection.rows  # type: ignore
+if selected_rows:
+    highlight_points.extend(
+        [
+            (i["start_lat"], i["start_lon"], i["route_name"])
+            for i in routes_df.iloc[selected_rows].to_dict(orient="records")
+        ]
     )
-    routes_df["total_time"] = routes_df["time_median"] + routes_df["commute_time"]
-    TABLE_COLUMNS.insert(2, "commute_time")
-    TABLE_COLUMNS.insert(3, "total_time")
-    st_df.dataframe(
-        routes_df[TABLE_COLUMNS], column_config={"route_page_link": st.column_config.LinkColumn("route_page_link")}
-    )
+
+if set(highlight_points) - {current_location}:
+    st_fig.plotly_chart(_create_map_fig(routes_df, highlight_points))
