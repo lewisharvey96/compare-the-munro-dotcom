@@ -226,7 +226,9 @@ routes_df['calories_per_kg'] = calories_ser
 
 routes_df['number_of_munros'] = [len(i) for i in routes_df['munros_climbed']]
 
-routes_df.to_csv("all_route_add_features.csv",index=False)
+# +
+# routes_df.to_csv("all_route_add_features.csv",index=False)
+# -
 
 plt.scatter(x=d['time_median'], y=d['ascent'], c=calories_ser, marker="^")
 plt.colorbar(label='Calories per kg of bodyweight')
@@ -259,3 +261,5 @@ plt.xlabel('elevation gain (m)')
 plt.ylabel('distance (km)')
 plt.scatter(x=d['ascent'], y=d['distance'], marker=".", color="black", label="Munro Route")
 plt.legend()
+
+
