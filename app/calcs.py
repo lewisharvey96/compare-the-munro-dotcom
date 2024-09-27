@@ -1,12 +1,9 @@
 from collections.abc import Generator
-from pathlib import Path
 
 import numpy as np
 from googlemaps.client import Client
 
 SECS_IN_HOUR = 3600
-
-ROOT_FLD = Path(__file__).parent.parent
 
 
 def _chunks(lst: list, n: int) -> Generator:

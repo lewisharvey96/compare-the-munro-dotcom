@@ -1,5 +1,5 @@
 ## Compare the munro .com
-A web app to display and explore munro routes. Hosted on Streamlit here.
+A web app to display and explore munro routes.
 
 ## Development
 Uses uv for virtual environment management. To install the dependencies, run:
