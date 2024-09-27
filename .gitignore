@@ -1,3 +1,3 @@
 /scripts/html_pages/
 */.ipynb_checkpoints/
-*/.streamlit/secrets.toml
+.streamlit/secrets.toml
