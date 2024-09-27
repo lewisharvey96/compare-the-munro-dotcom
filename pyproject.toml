@@ -95,3 +95,7 @@ sequence = [{ cmd = "uv run python -m jupyterlab" }]
 [tool.poe.tasks.export]
 help = "Generate requirements.txt"
 sequence = [{ cmd = "uv pip compile pyproject.toml -o requirements.txt" }]
+
+[tool.poe.tasks.ui]
+help = "Run streamlit"
+sequence = [{ cmd = " uv run streamlit run app/main.py" }]
